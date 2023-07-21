@@ -196,5 +196,5 @@ char* fd_get_next_line(File_Desc* fd) {
     }
     fd->buffer[i] = '\0';   // add the null terminated at the end of the buffer
 
-    return fd->buffer;
+    return fd->buffer;      // the method will return buffer value
 }
