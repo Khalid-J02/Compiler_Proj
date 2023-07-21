@@ -28,7 +28,7 @@ File_Desc* fd_open(const char* filename);
 File_Desc* fd_open_stdin();
 void fd_close(File_Desc* fd);
 char* fd_get_filename(File_Desc* fd);
-
+char* fd_get_next_line(File_Desc* fd);
 char* fd_get_curr_line(File_Desc* fd);
 int fd_get_line_num(File_Desc* fd);
 int fd_get_char_num(File_Desc* fd);

@@ -38,7 +38,7 @@ char* fd_get_filename(File_Desc* fd) {
 }
 
 char* fd_get_curr_line(File_Desc* fd) {
-    if (feof(fd->fp) && fd->flag2 == SET) {
+    if (feof(fd->fp)) {
         return fd->buffer;
     }
     return NULL;
@@ -176,3 +176,25 @@ void fd_unget_char(File_Desc* fd, char c) {
     }
 }
 // Puts back the current character, modifies the character number
+
+char* fd_get_next_line(File_Desc* fd) {
+    if (fd == NULL || fd->fp == NULL || feof(fd->fp)) {
+        return NULL;
+    }   // check if the pointer for the file is null (there is no file then do nothing
+
+    int i = 0;
+    char c;
+    while ((c = fd_get_char(fd)) != EOF) {  // keep looping on every single character until you reach the end of the file
+        if (c == '\n') {    // if the read char equal to new line then in such a case we such trim the line and store in buffer
+            fd_unget_char(fd, c);   // this was done to remove the \n (new line) into the buffer
+            break;
+        }
+        fd->buffer[i++] = c;    // otherwise keep storing the read chart in the buffer
+        if (i >= fd->buf_size - 1) {
+            resizeBuffer(fd);   // resize will be done only if buffer is full and there is no space for the "\0" since the string is null terminated
+        }
+    }
+    fd->buffer[i] = '\0';   // add the null terminated at the end of the buffer
+
+    return fd->buffer;
+}
