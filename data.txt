@@ -1,0 +1,209 @@
+
+string Res_Opt[] = {"lx_identifier", "lx_integer", "lx_string", "lx_float",
+                    "kw_and", "kw_begin", "kw_boolean", "kw_by", "kw_constant",
+                    "kw_do", "kw_else", "kw_end", "kw_false", "kw_fi", "kw_float",
+                    "kw_for", "kw_from", "kw_function", "kw_if", "kw_integer",
+                    "kw_not", "kw_od", "kw_or", "kw_procedure", "kw_program",
+                    "kw_read", "kw_return", "kw_string", "kw_then", "kw_to",
+                    "kw_true", "kw_var", "kw_while", "kw_write",
+                    "lx_lparen", "lx_rparen", "lx_lbracket", "lx_rbracket", "lx_lbrace", "lx_rbrace",
+                    "lx_dot", "lx_semicolon", "lx_comma", "lx_eq",
+                    "lx_plus", "lx_minus", "lx_star", "lx_slash",
+                    "lx_neq", "lx_lt", "lx_le", "lx_gt", "lx_ge", "lx_colon_eq", "lx_colon", "lx_eof"};
+
+int main() {
+
+    File_Desc *Fd;// = (File_Desc *) malloc(sizeof(File_Desc));
+    Fd = fd_open("C:\\Users\\Waseem\\Desktop\\A1_Jenan_Khalid\\A1_Jenan_Khalid\\data.txt");
+    if (fd_is_open(Fd))
+        printf("File Open\n");
+    SCANNER *scan = new SCANNER(Fd);
+
+//    fd_get_next_line(Fd);
+
+    printf("Token type \t \t String\n");
+    while (1) {
+        struct TOKEN *x;
+        x = scan->Scan();
+        printf("\ntoken : %d\n", x->type);
+
+        if (x->type == 1)
+            printf("\nvalue : %d\n", x->value);
+        else if (x->type == 3)
+            printf("\nfloat : %f\n", x->float_value);
+
+        printf("%s \t \t %s", Res_Opt[x->type].c_str(), x->str_ptr.c_str());
+        if (x->type == lx_eof) {
+            break;
+        }
+    }
+    fd_close(Fd);
+    return 0;
+
+}
+
+void resetBuffer(File_Desc *fd) {
+    fd->buffer[0] =
+    fd->char_number = 0;
+    fd->flag2 = UNSET;
+}
+
+// Helper function to resize the buffer
+void resizeBuffer(File_Desc *fd) {
+    fd->buf_size *= 2;
+    fd->buffer = (char *) realloc(fd->buffer, fd->buf_size);
+    if (fd->buffer == NULL) {
+        fprintf(stderr, "Memory allocation error!");
+        exit(0);
+    }
+}
+
+bool fd_is_open(File_Desc *fd) {
+    if (fd != NULL) {
+        if (fd->fp != NULL  ferror(fd->fp)) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+char *fd_get_filename(File_Desc *fd) {
+    return fd->file;
+}
+
+char *fd_get_curr_line(File_Desc *fd) {
+    if (feof(fd->fp)) {
+        return fd->buffer;
+    }
+    return NULL;
+}
+
+int fd_get_line_num(File_Desc *fd) {
+    return fd->line_number;
+}
+
+int fd_get_char_num(File_Desc *fd) {
+    return fd->char_number;
+}
+
+File_Desc *fd_open_stdin() {
+    File_Desc *fd = (File_Desc *) malloc(sizeof(File_Desc));
+    if (fd == NULL) {
+        fprintf(stderr, "Memory allocation error!");
+        return NULL;
+    }
+
+    fd->file = NULL;
+    fd->fp = stdin;
+    fd->line_number = 1;
+    fd->char_number = 0;
+    fd->flag = UNSET;
+    fd->buf_size = BUFFER_SIZE;
+    fd->buffer = (char *) malloc(fd->buf_size);
+    if (fd->buffer == NULL) {
+        fprintf(stderr, "Memory allocation error!");
+        free(fd);
+        return NULL;
+    }
+    resetBuffer(fd);
+    fd->flag2 = UNSET;
+
+    return fd;
+}
+// this is the constructor for the description file
+
+File_Desc *fd_open(const char *filename) {
+    File_Desc *fd = (File_Desc *) malloc(sizeof(File_Desc));
+    if (fd == NULL) {
+        fprintf(stderr, "Memory allocation error!");
+        return NULL;
+    }
+
+    fd->file = strdup(filename);
+    fd->fp = fopen(filename, "r");
+    fd->line_number = 1;
+    fd->char_number = 0;
+    fd->flag = UNSET;
+    fd->buf_size = BUFFER_SIZE;
+    fd->buffer = (char *) malloc(fd->buf_size);
+    if (fd->buffer == NULL) {
+        fprintf(stderr, "Memory allocation error!");
+        free(fd->file);
+        free(fd);
+        return NULL;
+    }
+    resetBuffer(fd);
+    fd_get_next_line(fd);
+
+    fd->flag2 = UNSET;
+
+
+    return fd;
+}
+// Constructor to open the file
+
+void fd_close_file(File_Desc *fd) {
+    if (fd->fp != stdin) {
+        fclose(fd->fp);
+        fd->fp = NULL;
+    }
+}
+
+void fd_close(File_Desc *fd) {
+    if (fd == NULL) {
+        return;
+    }
+    if (fd->file) {
+        free(fd->file);
+    }
+    if (fd->buffer) {
+        free(fd->buffer);
+    }
+    if (fd->fp != stdin) {
+        fclose(fd->fp);
+    }
+
+    free(fd);
+}
+// Destructor to close the file and free memory
+
+char fd_get_char(File_Desc *fd) {
+    char c;
+    c = fd->buffer[fd->char_number++];
+
+    if (c ==) {
+        fd->line_number++;
+        fd->char_number = 0;
+        resetBuffer(fd);
+        fd_get_next_line(fd);
+    }
+
+    return c;
+}
+// Gets the current character in the file
+
+
+void fd_report_error(File_Desc *fd, const char *msg) {
+    if (fd fd->file) {
+        fprintf(stderr, "Error in file '%s' at line %d, character %d: %s\n",
+                fd->file, fd->line_number, fd->char_number, msg);
+
+        for(int i=0; fd->buffer[i]!=  fd->buffer[i] ; i++){
+            printf("%c", fd->buffer[i]);
+        }##sfbicuw
+        printf("\n");
+        for (int i = 0; i < fd->char_number - 1; i++) {
+            fprintf(std##err, " ");
+        }
+        fpr##intf##(stderr, "^");
+    }
+    fd_close(fd);
+    exit(1);
+}
+// Reports the error specifying the current line and character
+
+void fd_unget_char(File_Desc *fd, char c) {
+    if (c != 0) {

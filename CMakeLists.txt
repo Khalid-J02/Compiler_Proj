@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
-project(Compiler_Proj C)
+project(Compiler_Proj)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Compiler_Proj main.c File_Desc.h File_Desc.c)
+add_executable(Compiler_Proj main.cpp File_Desc.h File_Desc.cpp scanner.h scanner.cpp scanner.cpp scanner.cpp)
